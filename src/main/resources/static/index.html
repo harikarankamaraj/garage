@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GarageDesk - Vehicle Service Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #d1d5db;
+        }
+
+        nav {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #e5e7eb;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        nav button:hover {
+            background: #d1d5db;
+        }
+
+        nav button.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 25px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .quality {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .occupied {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            display: none;
+            z-index: 100;
+        }
+
+        .success-message {
+            background: #16a34a;
+        }
+
+        .error-message {
+            background: #dc2626;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat h3 {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .stat p {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .small-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .edit {
+            background: #2563eb;
+        }
+
+        .delete {
+            background: #dc2626;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 20px;
+            }
+
+            nav {
+                padding: 10px;
+                overflow-x: auto;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚗 GarageDesk</h1>
+    <p>Vehicle Service Job Card & Bay Scheduling System</p>
+</header>
+
+<nav>
+    <button class="nav-btn active" onclick="showSection('dashboard', this)">
+        Dashboard
+    </button>
+
+    <button class="nav-btn" onclick="showSection('vehicles', this)">
+        Vehicles
+    </button>
+
+    <button class="nav-btn" onclick="showSection('bays', this)">
+        Bays
+    </button>
+
+    <button class="nav-btn" onclick="showSection('mechanics', this)">
+        Mechanics
+    </button>
+
+    <button class="nav-btn" onclick="showSection('jobcards', this)">
+        Job Cards
+    </button>
+
+    <button class="nav-btn" onclick="showSection('bills', this)">
+        Bills
+    </button>
+</nav>
+
+<div class="container">
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section id="dashboard" class="section active">
+
+        <div class="card">
+            <h2>Garage Dashboard</h2>
+
+            <div class="dashboard">
+
+                <div class="stat">
+                    <h3>Vehicles</h3>
+                    <p id="vehicleCount">0</p>
+                </div>
+
+                <div class="stat">
+                    <h3>Bays</h3>
+                    <p id="bayCount">0</p>
+                </div>
+
+                <div class="stat">
+                    <h3>Mechanics</h3>
+                    <p id="mechanicCount">0</p>
+                </div>
+
+                <div class="stat">
+                    <h3>Job Cards</h3>
+                    <p id="jobCardCount">0</p>
+                </div>
+
+                <div class="stat">
+                    <h3>Bills</h3>
+                    <p id="billCount">0</p>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- ================= VEHICLES ================= -->
+
+    <section id="vehicles" class="section">
+
+        <div class="card">
+
+            <h2>Add / Update Vehicle</h2>
+
+            <form id="vehicleForm">
+
+                <input type="hidden" id="vehicleId">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Registration Number</label>
+                        <input
+                                type="text"
+                                id="registrationNumber"
+                                required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Owner Name</label>
+                        <input
+                                type="text"
+                                id="ownerName"
+                                required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input
+                                type="text"
+                                id="phoneNumber"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle Brand</label>
+                        <input
+                                type="text"
+                                id="vehicleBrand"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle Model</label>
+                        <input
+                                type="text"
+                                id="vehicleModel"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Save Vehicle
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="resetVehicleForm()">
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Vehicle List</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Registration</th>
+                        <th>Owner</th>
+                        <th>Phone</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="vehicleTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= BAYS ================= -->
+
+    <section id="bays" class="section">
+
+        <div class="card">
+
+            <h2>Add / Update Bay</h2>
+
+            <form id="bayForm">
+
+                <input type="hidden" id="bayId">
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>Bay Number</label>
+                        <input
+                                type="text"
+                                id="bayNumber"
+                                placeholder="BAY-01"
+                                required>
+                    </div>
+
+                    <div>
+                        <label>Location</label>
+                        <input
+                                type="text"
+                                id="bayLocation">
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+                        <select id="bayStatus">
+                            <option value="AVAILABLE">AVAILABLE</option>
+                            <option value="OCCUPIED">OCCUPIED</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Save Bay
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="resetBayForm()">
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Bay List</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bay Number</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="bayTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= MECHANICS ================= -->
+
+    <section id="mechanics" class="section">
+
+        <div class="card">
+
+            <h2>Add / Update Mechanic</h2>
+
+            <form id="mechanicForm">
+
+                <input type="hidden" id="mechanicId">
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>Name</label>
+                        <input
+                                type="text"
+                                id="mechanicName"
+                                required>
+                    </div>
+
+                    <div>
+                        <label>Phone Number</label>
+                        <input
+                                type="text"
+                                id="mechanicPhone">
+                    </div>
+
+                    <div>
+                        <label>Specialization</label>
+                        <input
+                                type="text"
+                                id="specialization">
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+                        <select id="mechanicStatus">
+                            <option value="AVAILABLE">AVAILABLE</option>
+                            <option value="BUSY">BUSY</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Save Mechanic
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="resetMechanicForm()">
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Mechanic List</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Specialization</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="mechanicTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= JOB CARDS ================= -->
+
+    <section id="jobcards" class="section">
+
+        <div class="card">
+
+            <h2>Create / Update Job Card</h2>
+
+            <form id="jobCardForm">
+
+                <input type="hidden" id="jobCardId">
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>Job Card Number</label>
+                        <input
+                                type="text"
+                                id="jobCardNumber"
+                                required>
+                    </div>
+
+                    <div>
+                        <label>Vehicle</label>
+                        <select id="jobVehicle" required>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Bay</label>
+                        <select id="jobBay">
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Mechanic</label>
+                        <select id="jobMechanic">
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+
+                        <select id="jobStatus">
+
+                            <option value="WAITING">
+                                WAITING
+                            </option>
+
+                            <option value="IN_PROGRESS">
+                                IN_PROGRESS
+                            </option>
+
+                            <option value="QUALITY_CHECK">
+                                QUALITY_CHECK
+                            </option>
+
+                            <option value="COMPLETED">
+                                COMPLETED
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group full">
+
+                        <label>Requested Services</label>
+
+                        <textarea
+                                id="requestedServices"
+                                required
+                                placeholder="Oil change, brake inspection...">
+                        </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Save Job Card
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="resetJobCardForm()">
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Job Card List</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Job Card</th>
+                        <th>Vehicle</th>
+                        <th>Bay</th>
+                        <th>Mechanic</th>
+                        <th>Services</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="jobCardTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= BILLS ================= -->
+
+    <section id="bills" class="section">
+
+        <div class="card">
+
+            <h2>Create / Update Bill</h2>
+
+            <form id="billForm">
+
+                <input type="hidden" id="billId">
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>Job Card</label>
+                        <select id="billJobCard" required>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Parts Cost</label>
+                        <input
+                                type="number"
+                                id="partsCost"
+                                min="0"
+                                step="0.01"
+                                value="0"
+                                required>
+                    </div>
+
+                    <div>
+                        <label>Labour Cost</label>
+                        <input
+                                type="number"
+                                id="labourCost"
+                                min="0"
+                                step="0.01"
+                                value="0"
+                                required>
+                    </div>
+
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary">
+                        Save Bill
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="resetBillForm()">
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Bill List</h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Job Card</th>
+                        <th>Parts</th>
+                        <th>Labour</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="billTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<div id="message" class="message"></div>
+
+
+<script>
+
+    const API = "/api";
+
+
+    // ============================================================
+    // COMMON
+    // ============================================================
+
+    function showMessage(message, success = true) {
+
+        const box = document.getElementById("message");
+
+        box.textContent = message;
+
+        box.className = "message " +
+            (success
+                ? "success-message"
+                : "error-message");
+
+        box.style.display = "block";
+
+        setTimeout(() => {
+            box.style.display = "none";
+        }, 3000);
+    }
+
+
+    async function getErrorMessage(response) {
+
+        try {
+
+            const data = await response.json();
+
+            if (data.message) {
+                return data.message;
+            }
+
+            if (data.messages) {
+                return Object.values(data.messages).join(", ");
+            }
+
+            return "Request failed";
+
+        } catch {
+
+            return "Request failed";
+
+        }
+    }
+
+
+    function showSection(id, button) {
+
+        document.querySelectorAll(".section")
+            .forEach(section => {
+                section.classList.remove("active");
+            });
+
+        document.getElementById(id)
+            .classList.add("active");
+
+        document.querySelectorAll(".nav-btn")
+            .forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+        button.classList.add("active");
+
+        loadEverything();
+    }
+
+
+    // ============================================================
+    // VEHICLES
+    // ============================================================
+
+    let vehicles = [];
+
+
+    async function loadVehicles() {
+
+        const response =
+            await fetch(`${API}/vehicles`);
+
+        if (!response.ok) {
+            throw new Error(
+                await getErrorMessage(response)
+            );
+        }
+
+        vehicles = await response.json();
+
+        const table =
+            document.getElementById("vehicleTable");
+
+        table.innerHTML = "";
+
+        vehicles.forEach(vehicle => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${vehicle.id}</td>
+
+                    <td>
+                        ${vehicle.registrationNumber}
+                    </td>
+
+                    <td>
+                        ${vehicle.ownerName}
+                    </td>
+
+                    <td>
+                        ${vehicle.phoneNumber || ""}
+                    </td>
+
+                    <td>
+                        ${vehicle.vehicleBrand || ""}
+                    </td>
+
+                    <td>
+                        ${vehicle.vehicleModel || ""}
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="small-btn edit"
+                                onclick="editVehicle(${vehicle.id})">
+                                Edit
+                            </button>
+
+                            <button
+                                class="small-btn delete"
+                                onclick="deleteVehicle(${vehicle.id})">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+        document.getElementById("vehicleCount")
+            .textContent = vehicles.length;
+    }
+
+
+    document.getElementById("vehicleForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const id =
+                document.getElementById("vehicleId").value;
+
+            const vehicle = {
+
+                registrationNumber:
+                    document.getElementById(
+                        "registrationNumber"
+                    ).value,
+
+                ownerName:
+                    document.getElementById(
+                        "ownerName"
+                    ).value,
+
+                phoneNumber:
+                    document.getElementById(
+                        "phoneNumber"
+                    ).value,
+
+                vehicleBrand:
+                    document.getElementById(
+                        "vehicleBrand"
+                    ).value,
+
+                vehicleModel:
+                    document.getElementById(
+                        "vehicleModel"
+                    ).value
+            };
+
+
+            const url =
+                id
+                    ? `${API}/vehicles/${id}`
+                    : `${API}/vehicles`;
+
+            const method =
+                id ? "PUT" : "POST";
+
+
+            const response = await fetch(url, {
+
+                method: method,
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(vehicle)
+
+            });
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    await getErrorMessage(response),
+                    false
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                id
+                    ? "Vehicle updated successfully"
+                    : "Vehicle created successfully"
+            );
+
+            resetVehicleForm();
+
+            loadEverything();
+
+        });
+
+
+    function editVehicle(id) {
+
+        const vehicle =
+            vehicles.find(v => v.id === id);
+
+        if (!vehicle) return;
+
+
+        document.getElementById("vehicleId").value =
+            vehicle.id;
+
+        document.getElementById(
+            "registrationNumber"
+        ).value =
+            vehicle.registrationNumber;
+
+        document.getElementById(
+            "ownerName"
+        ).value =
+            vehicle.ownerName;
+
+        document.getElementById(
+            "phoneNumber"
+        ).value =
+            vehicle.phoneNumber || "";
+
+        document.getElementById(
+            "vehicleBrand"
+        ).value =
+            vehicle.vehicleBrand || "";
+
+        document.getElementById(
+            "vehicleModel"
+        ).value =
+            vehicle.vehicleModel || "";
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+
+    async function deleteVehicle(id) {
+
+        if (!confirm(
+            "Delete this vehicle?"
+        )) return;
+
+
+        const response =
+            await fetch(
+                `${API}/vehicles/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            showMessage(
+                await getErrorMessage(response),
+                false
+            );
+
+            return;
+        }
+
+
+        showMessage(
+            "Vehicle deleted successfully"
+        );
+
+        loadEverything();
+    }
+
+
+    function resetVehicleForm() {
+
+        document.getElementById(
+            "vehicleForm"
+        ).reset();
+
+        document.getElementById(
+            "vehicleId"
+        ).value = "";
+    }
+
+
+    // ============================================================
+    // BAYS
+    // ============================================================
+
+    let bays = [];
+
+
+    async function loadBays() {
+
+        const response =
+            await fetch(`${API}/bays`);
+
+        if (!response.ok) {
+            throw new Error(
+                await getErrorMessage(response)
+            );
+        }
+
+        bays = await response.json();
+
+        const table =
+            document.getElementById("bayTable");
+
+        table.innerHTML = "";
+
+
+        bays.forEach(bay => {
+
+            const statusClass =
+                bay.status === "AVAILABLE"
+                    ? "available"
+                    : "occupied";
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${bay.id}</td>
+
+                    <td>${bay.bayNumber}</td>
+
+                    <td>${bay.location || ""}</td>
+
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${bay.status}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="small-btn edit"
+                                onclick="editBay(${bay.id})">
+                                Edit
+                            </button>
+
+                            <button
+                                class="small-btn delete"
+                                onclick="deleteBay(${bay.id})">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        document.getElementById("bayCount")
+            .textContent = bays.length;
+    }
+
+
+    document.getElementById("bayForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById("bayId").value;
+
+
+            const bay = {
+
+                bayNumber:
+                    document.getElementById(
+                        "bayNumber"
+                    ).value,
+
+                location:
+                    document.getElementById(
+                        "bayLocation"
+                    ).value,
+
+                status:
+                    document.getElementById(
+                        "bayStatus"
+                    ).value
+
+            };
+
+
+            const response =
+                await fetch(
+                    id
+                        ? `${API}/bays/${id}`
+                        : `${API}/bays`,
+                    {
+
+                        method: id ? "PUT" : "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify(bay)
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    await getErrorMessage(response),
+                    false
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                id
+                    ? "Bay updated successfully"
+                    : "Bay created successfully"
+            );
+
+
+            resetBayForm();
+
+            loadEverything();
+
+        });
+
+
+    function editBay(id) {
+
+        const bay =
+            bays.find(b => b.id === id);
+
+        if (!bay) return;
+
+
+        document.getElementById(
+            "bayId"
+        ).value = bay.id;
+
+        document.getElementById(
+            "bayNumber"
+        ).value = bay.bayNumber;
+
+        document.getElementById(
+            "bayLocation"
+        ).value = bay.location || "";
+
+        document.getElementById(
+            "bayStatus"
+        ).value = bay.status;
+    }
+
+
+    async function deleteBay(id) {
+
+        if (!confirm(
+            "Delete this bay?"
+        )) return;
+
+
+        const response =
+            await fetch(
+                `${API}/bays/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            showMessage(
+                await getErrorMessage(response),
+                false
+            );
+
+            return;
+        }
+
+
+        showMessage(
+            "Bay deleted successfully"
+        );
+
+        loadEverything();
+    }
+
+
+    function resetBayForm() {
+
+        document.getElementById(
+            "bayForm"
+        ).reset();
+
+        document.getElementById(
+            "bayId"
+        ).value = "";
+    }
+
+
+    // ============================================================
+    // MECHANICS
+    // ============================================================
+
+    let mechanics = [];
+
+
+    async function loadMechanics() {
+
+        const response =
+            await fetch(`${API}/mechanics`);
+
+        if (!response.ok) {
+            throw new Error(
+                await getErrorMessage(response)
+            );
+        }
+
+        mechanics = await response.json();
+
+
+        const table =
+            document.getElementById(
+                "mechanicTable"
+            );
+
+        table.innerHTML = "";
+
+
+        mechanics.forEach(mechanic => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${mechanic.id}</td>
+
+                    <td>${mechanic.name}</td>
+
+                    <td>${mechanic.phoneNumber || ""}</td>
+
+                    <td>
+                        ${mechanic.specialization || ""}
+                    </td>
+
+                    <td>
+                        ${mechanic.status}
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="small-btn edit"
+                                onclick="editMechanic(${mechanic.id})">
+                                Edit
+                            </button>
+
+                            <button
+                                class="small-btn delete"
+                                onclick="deleteMechanic(${mechanic.id})">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        document.getElementById(
+            "mechanicCount"
+        ).textContent = mechanics.length;
+    }
+
+
+    document.getElementById("mechanicForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById(
+                    "mechanicId"
+                ).value;
+
+
+            const mechanic = {
+
+                name:
+                    document.getElementById(
+                        "mechanicName"
+                    ).value,
+
+                phoneNumber:
+                    document.getElementById(
+                        "mechanicPhone"
+                    ).value,
+
+                specialization:
+                    document.getElementById(
+                        "specialization"
+                    ).value,
+
+                status:
+                    document.getElementById(
+                        "mechanicStatus"
+                    ).value
+
+            };
+
+
+            const response =
+                await fetch(
+                    id
+                        ? `${API}/mechanics/${id}`
+                        : `${API}/mechanics`,
+                    {
+
+                        method:
+                            id ? "PUT" : "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(mechanic)
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    await getErrorMessage(response),
+                    false
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                id
+                    ? "Mechanic updated successfully"
+                    : "Mechanic created successfully"
+            );
+
+
+            resetMechanicForm();
+
+            loadEverything();
+
+        });
+
+
+    function editMechanic(id) {
+
+        const mechanic =
+            mechanics.find(
+                m => m.id === id
+            );
+
+        if (!mechanic) return;
+
+
+        document.getElementById(
+            "mechanicId"
+        ).value = mechanic.id;
+
+        document.getElementById(
+            "mechanicName"
+        ).value = mechanic.name;
+
+        document.getElementById(
+            "mechanicPhone"
+        ).value =
+            mechanic.phoneNumber || "";
+
+        document.getElementById(
+            "specialization"
+        ).value =
+            mechanic.specialization || "";
+
+        document.getElementById(
+            "mechanicStatus"
+        ).value = mechanic.status;
+    }
+
+
+    async function deleteMechanic(id) {
+
+        if (!confirm(
+            "Delete this mechanic?"
+        )) return;
+
+
+        const response =
+            await fetch(
+                `${API}/mechanics/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            showMessage(
+                await getErrorMessage(response),
+                false
+            );
+
+            return;
+        }
+
+
+        showMessage(
+            "Mechanic deleted successfully"
+        );
+
+        loadEverything();
+    }
+
+
+    function resetMechanicForm() {
+
+        document.getElementById(
+            "mechanicForm"
+        ).reset();
+
+        document.getElementById(
+            "mechanicId"
+        ).value = "";
+    }
+
+
+    // ============================================================
+    // JOB CARDS
+    // ============================================================
+
+    let jobCards = [];
+
+
+    async function loadJobCards() {
+
+        const response =
+            await fetch(`${API}/job-cards`);
+
+        if (!response.ok) {
+            throw new Error(
+                await getErrorMessage(response)
+            );
+        }
+
+        jobCards = await response.json();
+
+
+        const table =
+            document.getElementById(
+                "jobCardTable"
+            );
+
+        table.innerHTML = "";
+
+
+        jobCards.forEach(job => {
+
+            let statusClass = "waiting";
+
+
+            if (job.status === "IN_PROGRESS") {
+                statusClass = "progress";
+            }
+
+            if (job.status === "QUALITY_CHECK") {
+                statusClass = "quality";
+            }
+
+            if (job.status === "COMPLETED") {
+                statusClass = "completed";
+            }
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${job.id}</td>
+
+                    <td>${job.jobCardNumber}</td>
+
+                    <td>
+                        ${
+                            job.vehicle
+                                ? job.vehicle.registrationNumber
+                                : ""
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            job.bay
+                                ? job.bay.bayNumber
+                                : "Not Assigned"
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            job.mechanic
+                                ? job.mechanic.name
+                                : "Not Assigned"
+                        }
+                    </td>
+
+                    <td>
+                        ${job.requestedServices}
+                    </td>
+
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${job.status}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="small-btn edit"
+                                onclick="editJobCard(${job.id})">
+                                Edit
+                            </button>
+
+                            <button
+                                class="small-btn delete"
+                                onclick="deleteJobCard(${job.id})">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        document.getElementById(
+            "jobCardCount"
+        ).textContent = jobCards.length;
+
+
+        populateJobDropdowns();
+    }
+
+
+    function populateJobDropdowns() {
+
+        const vehicleSelect =
+            document.getElementById(
+                "jobVehicle"
+            );
+
+        vehicleSelect.innerHTML =
+            `<option value="">Select Vehicle</option>`;
+
+
+        vehicles.forEach(vehicle => {
+
+            vehicleSelect.innerHTML += `
+
+                <option value="${vehicle.id}">
+                    ${vehicle.registrationNumber}
+                    - ${vehicle.ownerName}
+                </option>
+
+            `;
+
+        });
+
+
+        const baySelect =
+            document.getElementById(
+                "jobBay"
+            );
+
+        baySelect.innerHTML =
+            `<option value="">No Bay</option>`;
+
+
+        bays.forEach(bay => {
+
+            baySelect.innerHTML += `
+
+                <option value="${bay.id}">
+                    ${bay.bayNumber}
+                    - ${bay.status}
+                </option>
+
+            `;
+
+        });
+
+
+        const mechanicSelect =
+            document.getElementById(
+                "jobMechanic"
+            );
+
+        mechanicSelect.innerHTML =
+            `<option value="">No Mechanic</option>`;
+
+
+        mechanics.forEach(mechanic => {
+
+            mechanicSelect.innerHTML += `
+
+                <option value="${mechanic.id}">
+                    ${mechanic.name}
+                </option>
+
+            `;
+
+        });
+
+
+        const billJobCard =
+            document.getElementById(
+                "billJobCard"
+            );
+
+        billJobCard.innerHTML =
+            `<option value="">Select Job Card</option>`;
+
+
+        jobCards.forEach(job => {
+
+            billJobCard.innerHTML += `
+
+                <option value="${job.id}">
+                    ${job.jobCardNumber}
+                </option>
+
+            `;
+
+        });
+
+    }
+
+
+    document.getElementById("jobCardForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById(
+                    "jobCardId"
+                ).value;
+
+
+            const vehicleId =
+                document.getElementById(
+                    "jobVehicle"
+                ).value;
+
+
+            const bayId =
+                document.getElementById(
+                    "jobBay"
+                ).value;
+
+
+            const mechanicId =
+                document.getElementById(
+                    "jobMechanic"
+                ).value;
+
+
+            const jobCard = {
+
+                jobCardNumber:
+                    document.getElementById(
+                        "jobCardNumber"
+                    ).value,
+
+                requestedServices:
+                    document.getElementById(
+                        "requestedServices"
+                    ).value,
+
+                status:
+                    document.getElementById(
+                        "jobStatus"
+                    ).value
+
+            };
+
+
+            let url;
+
+            let method;
+
+
+            if (id) {
+
+                url =
+                    `${API}/job-cards/${id}`;
+
+                method = "PUT";
+
+            } else {
+
+                url =
+                    `${API}/job-cards?vehicleId=${vehicleId}`;
+
+                if (bayId) {
+                    url += `&bayId=${bayId}`;
+                }
+
+                if (mechanicId) {
+                    url += `&mechanicId=${mechanicId}`;
+                }
+
+                method = "POST";
+            }
+
+
+            const response =
+                await fetch(url, {
+
+                    method: method,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(jobCard)
+
+                });
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    await getErrorMessage(response),
+                    false
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                id
+                    ? "Job card updated successfully"
+                    : "Job card created successfully"
+            );
+
+
+            resetJobCardForm();
+
+            loadEverything();
+
+        });
+
+
+    function editJobCard(id) {
+
+        const job =
+            jobCards.find(
+                j => j.id === id
+            );
+
+        if (!job) return;
+
+
+        document.getElementById(
+            "jobCardId"
+        ).value = job.id;
+
+
+        document.getElementById(
+            "jobCardNumber"
+        ).value =
+            job.jobCardNumber;
+
+
+        document.getElementById(
+            "requestedServices"
+        ).value =
+            job.requestedServices;
+
+
+        document.getElementById(
+            "jobStatus"
+        ).value =
+            job.status;
+
+
+        if (job.vehicle) {
+
+            document.getElementById(
+                "jobVehicle"
+            ).value =
+                job.vehicle.id;
+        }
+
+
+        if (job.bay) {
+
+            document.getElementById(
+                "jobBay"
+            ).value =
+                job.bay.id;
+        }
+
+
+        if (job.mechanic) {
+
+            document.getElementById(
+                "jobMechanic"
+            ).value =
+                job.mechanic.id;
+        }
+
+    }
+
+
+    async function deleteJobCard(id) {
+
+        if (!confirm(
+            "Delete this job card?"
+        )) return;
+
+
+        const response =
+            await fetch(
+                `${API}/job-cards/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            showMessage(
+                await getErrorMessage(response),
+                false
+            );
+
+            return;
+        }
+
+
+        showMessage(
+            "Job card deleted successfully"
+        );
+
+        loadEverything();
+    }
+
+
+    function resetJobCardForm() {
+
+        document.getElementById(
+            "jobCardForm"
+        ).reset();
+
+        document.getElementById(
+            "jobCardId"
+        ).value = "";
+    }
+
+
+    // ============================================================
+    // BILLS
+    // ============================================================
+
+    let bills = [];
+
+
+    async function loadBills() {
+
+        const response =
+            await fetch(`${API}/bills`);
+
+        if (!response.ok) {
+            throw new Error(
+                await getErrorMessage(response)
+            );
+        }
+
+        bills = await response.json();
+
+
+        const table =
+            document.getElementById(
+                "billTable"
+            );
+
+        table.innerHTML = "";
+
+
+        bills.forEach(bill => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${bill.id}</td>
+
+                    <td>
+                        ${
+                            bill.jobCard
+                                ? bill.jobCard.jobCardNumber
+                                : ""
+                        }
+                    </td>
+
+                    <td>
+                        ₹${Number(
+                            bill.partsCost || 0
+                        ).toFixed(2)}
+                    </td>
+
+                    <td>
+                        ₹${Number(
+                            bill.labourCost || 0
+                        ).toFixed(2)}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ₹${Number(
+                                bill.totalAmount || 0
+                            ).toFixed(2)}
+                        </strong>
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="small-btn edit"
+                                onclick="editBill(${bill.id})">
+                                Edit
+                            </button>
+
+                            <button
+                                class="small-btn delete"
+                                onclick="deleteBill(${bill.id})">
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        document.getElementById(
+            "billCount"
+        ).textContent = bills.length;
+
+
+        populateJobDropdowns();
+    }
+
+
+    document.getElementById("billForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById(
+                    "billId"
+                ).value;
+
+
+            const jobCardId =
+                document.getElementById(
+                    "billJobCard"
+                ).value;
+
+
+            const bill = {
+
+                partsCost:
+                    Number(
+                        document.getElementById(
+                            "partsCost"
+                        ).value
+                    ),
+
+                labourCost:
+                    Number(
+                        document.getElementById(
+                            "labourCost"
+                        ).value
+                    )
+
+            };
+
+
+            let url;
+
+            let method;
+
+
+            if (id) {
+
+                url =
+                    `${API}/bills/${id}`;
+
+                method = "PUT";
+
+            } else {
+
+                url =
+                    `${API}/bills?jobCardId=${jobCardId}`;
+
+                method = "POST";
+            }
+
+
+            const response =
+                await fetch(url, {
+
+                    method: method,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(bill)
+
+                });
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    await getErrorMessage(response),
+                    false
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                id
+                    ? "Bill updated successfully"
+                    : "Bill created successfully"
+            );
+
+
+            resetBillForm();
+
+            loadEverything();
+
+        });
+
+
+    function editBill(id) {
+
+        const bill =
+            bills.find(
+                b => b.id === id
+            );
+
+        if (!bill) return;
+
+
+        document.getElementById(
+            "billId"
+        ).value = bill.id;
+
+
+        if (bill.jobCard) {
+
+            document.getElementById(
+                "billJobCard"
+            ).value =
+                bill.jobCard.id;
+        }
+
+
+        document.getElementById(
+            "partsCost"
+        ).value =
+            bill.partsCost || 0;
+
+
+        document.getElementById(
+            "labourCost"
+        ).value =
+            bill.labourCost || 0;
+
+    }
+
+
+    async function deleteBill(id) {
+
+        if (!confirm(
+            "Delete this bill?"
+        )) return;
+
+
+        const response =
+            await fetch(
+                `${API}/bills/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            showMessage(
+                await getErrorMessage(response),
+                false
+            );
+
+            return;
+        }
+
+
+        showMessage(
+            "Bill deleted successfully"
+        );
+
+        loadEverything();
+    }
+
+
+    function resetBillForm() {
+
+        document.getElementById(
+            "billForm"
+        ).reset();
+
+        document.getElementById(
+            "billId"
+        ).value = "";
+
+        document.getElementById(
+            "partsCost"
+        ).value = 0;
+
+        document.getElementById(
+            "labourCost"
+        ).value = 0;
+    }
+
+
+    // ============================================================
+    // LOAD EVERYTHING
+    // ============================================================
+
+    async function loadEverything() {
+
+        try {
+
+            await loadVehicles();
+
+            await loadBays();
+
+            await loadMechanics();
+
+            await loadJobCards();
+
+            await loadBills();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Unable to connect to backend",
+                false
+            );
+        }
+    }
+
+
+    // ============================================================
+    // START APPLICATION
+    // ============================================================
+
+    loadEverything();
+
+</script>
+
+</body>
+</html>
